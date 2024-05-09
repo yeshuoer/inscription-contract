@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/utils/cryptography/draft-EIP712Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts-upgradeable/utils/cryptography/EIP712Upgradeable.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
-import "./interfaces/IASC20Market.sol";
-import { OrderTypes, ASC20Order } from "./lib/OrderTypes.sol";
+import "./IASC20Market.sol";
+import { OrderTypes, ASC20Order } from "./OrderTypes.sol";
 
 contract ASC20Market is
     IASC20Market,
@@ -19,7 +19,7 @@ contract ASC20Market is
     PausableUpgradeable,
     EIP712Upgradeable
 {
-    using SafeERC20Upgradeable for IERC20Upgradeable;
+    using SafeERC20 for IERC20;
     using OrderTypes for ASC20Order;
 
     /// @dev Suggested gas stipend for contract receiving ETH that disallows any storage writes.
@@ -33,7 +33,7 @@ contract ASC20Market is
 
     function initialize() public initializer {
         __EIP712_init("ASC20Market", "1.0");
-        __Ownable_init();
+        __Ownable_init(msg.sender);
         __ReentrancyGuard_init();
 
         // default owner
@@ -273,7 +273,7 @@ contract ASC20Market is
     }
 
     function withdrawUnexpectedERC20(address token, address to, uint256 amount) external onlyOwner {
-        IERC20Upgradeable(token).safeTransfer(to, amount);
+        IERC20(token).safeTransfer(to, amount);
     }
 
 
